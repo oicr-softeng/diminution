@@ -1,0 +1,32 @@
+# Eclipse IDE
+.project
+.classpath
+.apt_generated
+org.eclipse.core.resources.prefs
+org.eclipse.jdt.apt.core.prefs
+
+# Intellij IDE
+.idea
+*.iml
+atlassian-ide-plugin.xml
+
+# VSCode
+.vscode
+
+# Javascript Temporary Files
+npm-debug.log
+package-lock.json
+node_modules/
+dist/
+
+# *nix temporary files
+*~
+*.swp
+
+# Mac metadata
+.DS_Store
+
+# Kaleidoscope
+*.orig
+
+.env*
