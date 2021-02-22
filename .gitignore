@@ -17,6 +17,7 @@ atlassian-ide-plugin.xml
 npm-debug.log
 package-lock.json
 node_modules/
+persist/
 dist/
 
 # *nix temporary files
@@ -30,3 +31,4 @@ dist/
 *.orig
 
 .env*
+*.sqlite
