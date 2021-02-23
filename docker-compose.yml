@@ -1,0 +1,30 @@
+services:
+    app:
+        build: .
+        env_file: .env
+        environment:
+            DEBUG: ${DEBUG}
+        expose:
+            - "4100"
+        restart: always
+        volumes:
+            - app-data:/srv/diminution
+
+    nginx:
+        build: ./nginx/
+        depends_on:
+            - app
+        ports:
+            - "8080:8080"
+        restart: always
+        volumes:
+            - type: volume
+              source: app-data
+              target: /srv/diminution
+              read_only: true
+            - ./nginx/diminution.conf:/etc/nginx/conf.d/diminution.conf
+            - ./persist/logs/:/var/log/
+            - ./persist/logs/nginx:/var/log/nginx
+
+volumes:
+    app-data:
