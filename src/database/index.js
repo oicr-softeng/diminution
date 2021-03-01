@@ -38,8 +38,9 @@ knex.schema
     .catch((error) => console.error(`There was an error setting up the database from ${dbPath}: ${error}`));
 
 const urlsTableQueryBuilder = () => knex('urls');
+const urlsTableBatchInsert = dataArray => knex.batchInsert('urls', dataArray, 100);
 
 export default {
     knex,
-    ...dataHelpers(urlsTableQueryBuilder),
+    ...dataHelpers(urlsTableQueryBuilder, urlsTableBatchInsert),
 };

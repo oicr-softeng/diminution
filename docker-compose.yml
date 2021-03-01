@@ -4,11 +4,13 @@ services:
         env_file: .env
         environment:
             DEBUG: ${DEBUG}
+            diminutionURL: ${DIMINUTION_URL}
         expose:
             - "4100"
         restart: always
         volumes:
             - app-data:/srv/diminution
+            - ./persist/database.sqlite:/srv/diminution/dist/database/database.sqlite
 
     nginx:
         build: ./nginx/
