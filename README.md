@@ -4,9 +4,9 @@
 
 <p align="center">
     <a href="https://github.com/overture-stack/diminution">
-        <img alt="Under Development"
-            title="Under Development"
-            src="http://www.overture.bio/img/progress-horizontal-UD.svg" width="320" />
+        <img alt="Beta"
+            title="Beta"
+            src="http://www.overture.bio/img/progress-horizontal-BETA.svg" width="320" />
     </a>
 </p>
 
@@ -20,6 +20,7 @@ Allows creation, storage and management for short URL,
 - Express
 - SQLite
 - Docker
+- NginX
 
 ### Build & Run
 
