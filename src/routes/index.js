@@ -9,6 +9,10 @@ import {
 
 const router = express.Router();
 
+// Diminution may be used as a middleware, if you want to set its URLs at the root of another site.
+// This EnvVar tells diminution you have a URL they can redirect/passthrough to if it cannot handle a request
+const passthrough = process.env.PASSTHROUGH_URL;
+
 const diminutioRoutes = ({
     allURLs,
     createURL,
@@ -25,31 +29,39 @@ const diminutioRoutes = ({
         allURLs(results => res.send(collectDuplicates(results)));
     });
 
-    // redirect to long URL if a short URL is passed
+    // redirect to long URL if a short URL is passed, or serve as a passthrough
     router.get('/:shortUrl?', (req, res) => {
         const {
             params: { shortUrl }, // are they trying to get a redirection?
             query: { longUrl, url }, // or are they trying to create a new url
         } = req;
 
-        if (shortUrl || longUrl || url) {
+        if (shortUrl || longUrl || url || passthrough) {
             const filter = (
                 shortUrl ? { shortUrl }
                 : longUrl ? { longUrl: cleanURL(encodeURI(longUrl)) }
-                : { longUrl: url } // this won't happen, dev purposes only
+                : passthrough // if they didn't pass anything to filter by, they may just be looking for a site behind
+                    ? res.redirect(`${passthrough}${req.originalUrl}`) // so catch and release
+                    : { longUrl: url } // this shouldn't happen, unless purposely, while working in dev mode
             );
 
-            return getURL(filter, results => (
+            process.env.DEBUG && console.log('request made from', req.get('host'), '\n', req.originalUrl);
+
+            return res.headersSent || getURL(filter, results => (
                 shortUrl // they seek to be redirected
                     ? results?.length > 0 // TODO produce notice to replace duplicate links with the one provided here.
                         ? res.redirect(307, results[0].longUrl) // so, take them to the first one found
-                        : res.status(400).send({ error: `Found no matching results for ${shortUrl}` }) // or throw error
+                        // no results found, meaning it is not something Diminution can handle
+                        : passthrough // if there's any site/service we're in front of
+                            ? res.redirect(`${passthrough}${req.originalUrl}`) // it may be their resource
+                            : res.status(400) // else throw an error
+                                .send({ error: `Found no matching results for ${shortUrl}` })
 
-                    // longUrl was given, trying to find/create a short URL hash for its destination
+                // longUrl (or dev 'url') was given, trying to find/create a short URL hash for its destination
                     : results?.length > 0 // if any was found.
                         ? res.send({
                             longUrl: results[0].longUrl,
-                            shortUrl: `${process.env.diminutionURL}/${results[0].shortUrl}`,
+                            shortUrl: `${process.env.DIMINUTION_URL}/${results[0].shortUrl}`,
                             success: true,
                         })
 
@@ -60,7 +72,7 @@ const diminutioRoutes = ({
                             shortUrl: generateRandomString(),
                         }, newShortUrl => res.send({
                             ...filter,
-                            shortUrl: `${process.env.diminutionURL}/${newShortUrl}`,
+                            shortUrl: `${process.env.DIMINUTION_URL}/${newShortUrl}`,
                             success: true,
                         }))
             )).catch(error => res.status(500).send({ error }));

@@ -56,6 +56,9 @@ module.exports = {
             ignoreUrls: true,
         }],
         'no-console': 'off',
+        'no-else-return': ['warn', {
+            allowElseIf: true,
+        }],
         'no-multi-assign': 'off',
         'no-nested-ternary': 'off',
         'no-unneeded-ternary': 'warn',

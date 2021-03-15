@@ -6,7 +6,7 @@
     "main": "dist/index.js",
     "scripts": {
         "build": "npx babel src --out-dir ./dist --no-copy-ignored --delete-dir-on-start --minified",
-        "dev": "nodemon --exec babel-node src/index.js",
+        "dev": "nodemon --exec babel-node --require dotenv/config src/index.js",
         "docker:build": "docker build -t overture/diminution .",
         "docker:run": "docker run -p 4100:4100 --name diminution -v `pwd`/persist/database.sqlite:/srv/diminution/dist/database/database.sqlite -d overture/diminution",
         "test": "echo \"Error: no test specified\" && exit 1"

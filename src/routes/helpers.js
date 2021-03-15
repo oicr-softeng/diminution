@@ -1,7 +1,7 @@
 export const cleanURL = (input = '') => (['http', 'https'].some(scheme => input.startsWith(scheme)) ? input : `http://${input}`);
 
 export const collectDuplicates = rows => rows.reduce((acc, row) => {
-    const found = rows.filter(test => test.longUrl.toLowerCase() === row.longUrl.toLowerCase());
+    const found = rows.filter(({ longUrl = '' }) => longUrl.toLowerCase() === row.longUrl.toLowerCase());
 
     return found.length > 1
         ? {
