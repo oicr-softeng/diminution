@@ -12,6 +12,7 @@ const router = express.Router();
 // Diminution may be used as a middleware, if you want to set its URLs at the root of another site.
 // This EnvVar tells diminution you have a URL they can redirect/passthrough to if it cannot handle a request
 const passthrough = process.env.PASSTHROUGH_URL;
+const filterPassthrough = process.env.PASSTHROUGH_FILTER;
 
 const diminutioRoutes = ({
     allURLs,
@@ -41,19 +42,20 @@ const diminutioRoutes = ({
                 shortUrl ? { shortUrl }
                 : longUrl ? { longUrl: cleanURL(encodeURI(longUrl)) }
                 : passthrough // if they didn't pass anything to filter by, they may just be looking for a site behind
-                    ? res.redirect(`${passthrough}${req.originalUrl}`) // so catch and release
+                    ? res.redirect(`${passthrough}${filterPassthrough ? '' : req.originalUrl}`) // so catch and release
                     : { longUrl: url } // this shouldn't happen, unless purposely, while working in dev mode
             );
 
             process.env.DEBUG && console.log('request made from', req.get('host'), '\n', req.originalUrl);
 
             return res.headersSent || getURL(filter, results => (
+                process.env.DEBUG && console.log(filter, results),
                 shortUrl // they seek to be redirected
                     ? results?.length > 0 // TODO produce notice to replace duplicate links with the one provided here.
                         ? res.redirect(307, results[0].longUrl) // so, take them to the first one found
                         // no results found, meaning it is not something Diminution can handle
                         : passthrough // if there's any site/service we're in front of
-                            ? res.redirect(`${passthrough}${req.originalUrl}`) // it may be their resource
+                            ? res.redirect(`${passthrough}${filterPassthrough ? '' : req.originalUrl}`) // it may be their resource
                             : res.status(400) // else throw an error
                                 .send({ error: `Found no matching results for ${shortUrl}` })
 
