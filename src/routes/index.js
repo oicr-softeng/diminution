@@ -11,8 +11,10 @@ const router = express.Router();
 
 // Diminution may be used as a middleware, if you want to set its URLs at the root of another site.
 // This EnvVar tells diminution you have a URL they can redirect/passthrough to if it cannot handle a request
-const passthrough = process.env.PASSTHROUGH_URL;
-const filterPassthrough = process.env.PASSTHROUGH_FILTER;
+const {
+    PASSTHROUGH_URL: passthrough,
+    PASSTHROUGH_FILTER_SPLATS: filterPassthrough,
+} = process.env;
 
 const diminutioRoutes = ({
     allURLs,
@@ -46,7 +48,7 @@ const diminutioRoutes = ({
                     : { longUrl: url } // this shouldn't happen, unless purposely, while working in dev mode
             );
 
-            process.env.DEBUG && console.log('request made from', req.get('host'), '\n', req.originalUrl);
+            process.env.DEBUG && console.log('\n\n---\nRequest made from', req.get('host'), '\n', req.originalUrl);
 
             return res.headersSent || getURL(filter, results => (
                 process.env.DEBUG && console.log(filter, results),
