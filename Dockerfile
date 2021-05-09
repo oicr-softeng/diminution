@@ -35,6 +35,10 @@ COPY --from=prebuilder\
     ./dist/
 
 COPY --from=prebuilder\
+    /app/src/views/\
+    ./dist/views/
+
+COPY --from=prebuilder\
     /app/package.json\
     ./
 

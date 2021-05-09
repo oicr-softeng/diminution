@@ -2,10 +2,6 @@ services:
     app:
         build: .
         env_file: .env
-        environment:
-            DEBUG: ${DEBUG}
-            DIMINUTION_URL: ${DIMINUTION_URL}
-            PASSTHROUGH_URL: ${PASSTHROUGH_URL}
         expose:
             - "4100"
         restart: always

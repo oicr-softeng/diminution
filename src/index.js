@@ -10,14 +10,16 @@ const PORT = process.env.PORT || 4100;
 const app = express();
 
 // these just set up instructions at the root endpoint
-app.engine('md', (filepath, options, fn) => (
-    fs.readFile(filepath, 'utf8', (err, str) => (
-        err ? fn(err)
-        : fn(null, marked
-            .parse(str)
-            .replace(/\{([^}]+)\}/g, (_, name) => escapeHtml(options[name] || '')))
-    ))
-));
+app.engine('md', (filepath, options, fn) =>
+  fs.readFile(filepath, 'utf8', (err, str) =>
+    err
+      ? fn(err)
+      : fn(
+          null,
+          marked.parse(str).replace(/\{([^}]+)\}/g, (_, name) => escapeHtml(options[name] || '')),
+        ),
+  ),
+);
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'md'); // makes .md the default extension
