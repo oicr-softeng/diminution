@@ -39,6 +39,10 @@ COPY --from=prebuilder\
     ./dist/views/
 
 COPY --from=prebuilder\
+    /app/src/favicon.ico\
+    ./dist/
+
+COPY --from=prebuilder\
     /app/package.json\
     ./
 
