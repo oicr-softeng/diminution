@@ -5,6 +5,7 @@ import {
   collectDuplicates,
   csvToJSON,
   generateRandomString,
+  parseBooleanEnv,
   uploadedURLsShaper,
 } from './helpers';
 
@@ -15,11 +16,14 @@ const router = express.Router();
 const {
   DEBUG,
   DIMINUTION_URL,
-  PASSTHROUGH_FAILURE_FILTER_SPLATS: filterFailurePassthrough,
+  PASSTHROUGH_FAILURE_FILTER_SPLATS,
   PASSTHROUGH_FAILURE_ENDPOINT: passthroughFailureEndpoint,
-  PASSTHROUGH_ROOT_FILTER_SPLATS: filterPassthrough,
+  PASSTHROUGH_ROOT_FILTER_SPLATS,
   PASSTHROUGH_ROOT_URL: passthrough,
 } = process.env;
+
+const filterFailurePassthrough = parseBooleanEnv(PASSTHROUGH_FAILURE_FILTER_SPLATS);
+const filterPassthrough = parseBooleanEnv(PASSTHROUGH_ROOT_FILTER_SPLATS);
 
 const diminutionRoutes = ({ allURLs, createURL, getURL, uploadURLs }) => {
   // gets all existing urls
@@ -34,6 +38,7 @@ const diminutionRoutes = ({ allURLs, createURL, getURL, uploadURLs }) => {
   // redirect to long URL if a short URL is passed, or serve as a passthrough
   router.get('/:shortUrl?', (req, res) => {
     const {
+      originalUrl,
       params: { shortUrl }, // are they trying to get a redirection?
       query: { longUrl, url }, // or are they trying to create a new url
     } = req;
@@ -44,11 +49,10 @@ const diminutionRoutes = ({ allURLs, createURL, getURL, uploadURLs }) => {
         : longUrl
         ? { longUrl: cleanURL(encodeURI(longUrl)) }
         : passthrough // if they didn't pass anything to filter by, they may just be looking for a site behind
-        ? res.redirect(`${passthrough}${filterPassthrough ? '' : req.originalUrl}`) // so catch and release
+        ? res.redirect(`${passthrough}${filterPassthrough ? '' : originalUrl}`) // so catch and release
         : { longUrl: url }; // this shouldn't happen, unless purposely, while working in dev mode
-      console.log('req?', req);
 
-      DEBUG && console.log('\n\n---\nRequest made from', req.get('host'), '\n', req.originalUrl);
+      DEBUG && console.log('\n\n---\nRequest made from', req.get('host'), '\n', originalUrl);
 
       return (
         res.headersSent ||
@@ -63,7 +67,7 @@ const diminutionRoutes = ({ allURLs, createURL, getURL, uploadURLs }) => {
                 passthrough // if there's any site/service we're in front of
                 ? res.redirect(
                     `${passthrough}/${passthroughFailureEndpoint}${
-                      filterFailurePassthrough ? '' : req.originalUrl
+                      filterFailurePassthrough ? '' : originalUrl
                     }`,
                   ) // it may be their resource
                 : res

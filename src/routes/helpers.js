@@ -89,6 +89,11 @@ export const generateRandomString = (length = 6) => {
   ).join('');
 };
 
+export const parseBooleanEnv = (strValue = 'false') =>
+  typeof strValue === 'string' && ['false', 'true'].includes(strValue?.toLowerCase())
+    ? JSON.parse(strValue.toLowerCase())
+    : false;
+
 // ignores any superfluous elements, keeping only what we want from the data
 export const uploadedURLsShaper = (data) =>
   data.map(({ creation, longUrl, lastUsed, timesUsed, shortUrl }) => ({
